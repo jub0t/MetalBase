@@ -3,9 +3,8 @@ use axum::http::StatusCode;
 use serde_json::Value;
 use axum::Json;
 
-pub mod database;
 
-pub async fn index_hand() -> (StatusCode, Json<Response>) {
+pub async fn database_hand() -> (StatusCode, Json<Response>) {
     let mut res = Response::new();
     res.success(true);
     res.message("Greetings");
