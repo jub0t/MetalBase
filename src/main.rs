@@ -32,6 +32,7 @@ async fn main() {
     let app = axum::Router::new()
         .route("/", get(index_hand))
         .route("/database/:database/:table", get(database_hand))
+        .route("/database/:database", axum::routing::put(database_hand))
         .layer(Extension(Arc::clone(&mut db)));
 
     Server::bind(&"0.0.0.0:3000".parse().unwrap())
