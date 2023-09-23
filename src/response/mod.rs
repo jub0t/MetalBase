@@ -1,5 +1,5 @@
 use axum::Json;
-use rmps::Serializer;
+use rmp_serde::Serializer;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

@@ -1,5 +1,5 @@
 // Logger Error Code(s)
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LEC {
     Database,
     Storage,
@@ -7,6 +7,7 @@ pub enum LEC {
     Unknown,
 }
 
+#[derive(Debug, Clone)]
 pub struct Logger {}
 
 impl Logger {

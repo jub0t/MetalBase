@@ -18,9 +18,9 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: &str) -> Self {
         return Self {
-            name,
+            name: name.to_string(),
             tables: HashMap::new(),
             id: Uuid::new_v4().to_string(),
         };
