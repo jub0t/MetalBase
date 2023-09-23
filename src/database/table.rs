@@ -8,7 +8,7 @@ use crate::database::row::Row;
 #[derive(Clone, Debug)]
 pub struct TableConfig {
     custom_ids: bool,
-    no_unwanted_fields: bool,
+    schemaless: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -34,7 +34,44 @@ impl Table {
     pub fn default_config() -> TableConfig {
         return TableConfig {
             custom_ids: false,
-            no_unwanted_fields: false,
+            schemaless: false,
         };
+    }
+
+    pub fn get_all_where(self, key: &str, value: &str) -> Vec<Row> {
+        let mut data = Vec::new();
+        let mut rows = self.rows.clone();
+
+        if rows.len() == 0 {
+            return data;
+        }
+
+        for (size, row) in rows.iter() {
+            if row.data[key] == value {
+                data.push(row.to_owned());
+            }
+        }
+
+        return data;
+    }
+
+    pub fn get_all_where_multi(self, keys: Vec<&str>, values: Vec<&str>) -> Vec<Row> {
+        let mut data = Vec::new();
+        let mut rows = self.rows.clone();
+
+        if rows.len() == 0 {
+            return data;
+        }
+
+        for (size, row) in rows.iter() {
+            for (key, value) in keys.iter().zip(values.iter()) {
+                if row.data[key] == value {
+                    data.push(row.to_owned());
+                    break;
+                }
+            }
+        }
+
+        return data;
     }
 }
