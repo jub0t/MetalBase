@@ -5,11 +5,13 @@ use uuid::Uuid;
 
 use crate::database::row::Row;
 
+#[derive(Clone, Debug)]
 pub struct TableConfig {
     custom_ids: bool,
     no_unwanted_fields: bool,
 }
 
+#[derive(Clone, Debug)]
 pub struct Table {
     id: String,
     name: String,

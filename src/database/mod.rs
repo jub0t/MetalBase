@@ -4,14 +4,17 @@ use uuid::Uuid;
 
 use crate::database::table::Table;
 
-mod table;
-mod types;
-mod row;
+pub mod table;
+pub mod types;
+pub mod row;
 
+pub type Tables = HashMap<String, Table>;
+
+#[derive(Clone, Debug)]
 pub struct Database {
     id: String,
     name: String,
-    tables: HashMap<String, Table>,
+    tables: Tables,
 }
 
 impl Database {
@@ -23,8 +26,8 @@ impl Database {
         };
     }
 
-    pub fn get_table(&self, name: String) -> Option<&Table> {
-        return self.tables.get(&name);
+    pub fn get_all_tables(self) -> Tables {
+        return self.tables;
     }
 
     pub fn create_table(&mut self, name: &str) -> Option<&Table> {

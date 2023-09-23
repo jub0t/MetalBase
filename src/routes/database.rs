@@ -1,14 +1,13 @@
+use axum::Extension;
 use axum::http::StatusCode;
-use axum::Json;
 use serde_json::Value;
 
+use crate::database;
+use crate::database::row::Row;
 use crate::response::Response;
 
-pub async fn database_hand() -> (StatusCode, Json<Response>) {
-    let mut res = Response::new();
-    res.success(true);
-    res.message("Greetings");
-    res.data_field("username", Value::String("John".to_string()));
-
-    return (StatusCode::OK, res.json_response());
+pub async fn database_hand(Extension(db): Extension<database::Database>) -> (StatusCode, Vec<u8>) {
+    let row = Row::new();
+    let mut res = Response::new(true, Value::String("Greetings".to_string()), Some(row.data));
+    return (StatusCode::OK, res.as_buffer());
 }

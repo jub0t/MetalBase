@@ -1,15 +1,14 @@
-use crate::response::Response;
 use axum::http::StatusCode;
-use serde_json::Value;
 use axum::Json;
+use serde_json::Value;
+
+use crate::response::Response;
 
 pub mod database;
 
-pub async fn index_hand() -> (StatusCode, Json<Response>) {
-    let mut res = Response::new();
-    res.success(true);
+pub async fn index_hand() -> (StatusCode, Json<Response<u8>>) {
+    let mut res = Response::new(true, Value::Null, Some(1));
     res.message("Greetings");
-    res.data_field("username", Value::String("John".to_string()));
 
-    return (StatusCode::OK, res.json_response());
+    return (StatusCode::OK, res.as_json());
 }

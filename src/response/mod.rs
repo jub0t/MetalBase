@@ -1,22 +1,27 @@
-use std::collections::HashMap;
-
 use axum::Json;
-use serde::Serialize;
+use rmps::Serializer;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Default, Serialize)]
-pub struct Response {
+#[derive(Default, Debug, PartialEq, Deserialize, Serialize, Clone)]
+pub struct Response<T>
+    where
+        T: Serialize + Clone,
+{
     pub success: bool,
     pub message: Value,
-    pub data: HashMap<String, Value>,
+    pub data: Option<T>,
 }
 
-impl Response {
-    pub fn new() -> Self {
+impl<T> Response<T>
+    where
+        T: Serialize + Clone,
+{
+    pub fn new(success: bool, message: Value, data: Option<T>) -> Self {
         Response {
-            success: false,
-            message: Value::Null,
-            data: HashMap::with_capacity(16),
+            success,
+            message,
+            data,
         }
     }
 
@@ -28,19 +33,27 @@ impl Response {
         self.message = Value::String(message.to_string());
     }
 
-    pub fn set_capacity(&mut self, capacity: usize) {
-        self.data = HashMap::with_capacity(capacity);
+    pub fn set_data(&mut self, data: T) {
+        self.data = Some(data);
     }
 
-    pub fn data_field(&mut self, key: &str, value: Value) {
-        self.data.insert(key.to_string(), value);
-    }
-
-    pub fn json_response(self) -> Json<Self> {
-        Json(Response {
+    pub fn as_struct(&self) -> Self {
+        Response {
             success: self.success,
-            message: self.message,
-            data: self.data,
-        })
+            message: self.message.clone(),
+            data: self.data.clone(),
+        }
+    }
+
+    pub fn as_json(&self) -> Json<Self> {
+        Json(self.as_struct())
+    }
+
+    pub fn as_buffer(&self) -> Vec<u8> {
+        let mut buffer = Vec::new();
+        let resp = self.as_struct();
+
+        let _ = resp.serialize(&mut Serializer::new(&mut buffer)).unwrap();
+        return buffer;
     }
 }
