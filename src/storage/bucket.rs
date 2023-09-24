@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::ranid::RanID;
 use crate::storage::katra::{FileType, Katra};
 
 pub type Buckets = HashMap<String, Bucket>;
@@ -14,7 +15,7 @@ pub struct Bucket {
 impl Bucket {
     pub fn new() -> Self {
         return Self {
-            id: String::new(),
+            id: RanID::new(),
             drops: HashMap::new(),
             banned_types: Vec::new(),
             max_size: 1024 * 1024 * 1024 * 1024, // One Gigabyte

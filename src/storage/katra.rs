@@ -1,5 +1,4 @@
-use uuid::Uuid;
-
+use crate::ranid::RanID;
 use crate::response::Buffer;
 
 pub enum FileType {
@@ -31,7 +30,7 @@ pub struct Katra {
 impl Katra {
     pub fn new(name: &str) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: RanID::new(),
             name: name.to_string(),
             size: 0,
             drop_type: FileType::CUSTOM("".to_string()),
@@ -40,4 +39,13 @@ impl Katra {
     }
 
     pub fn load_from_path(&mut self, path: &str) {}
+
+    pub fn get_buffer(&self) -> &Buffer {
+        &self.data
+    }
+
+    // Function to update the data buffer
+    pub fn update_data(&mut self, data: Buffer) {
+        self.data = data
+    }
 }

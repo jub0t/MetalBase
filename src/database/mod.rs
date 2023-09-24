@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 use std::ops::DerefMut;
 
-use uuid::Uuid;
-
 use crate::database::row::Row;
 use crate::database::table::Table;
 use crate::database::types::FieldValue;
+use crate::ranid::RanID;
 
 pub mod table;
 pub mod types;
@@ -26,7 +25,7 @@ impl Database {
         return Self {
             name: name.to_string(),
             tables: HashMap::new(),
-            id: Uuid::new_v4().to_string(),
+            id: RanID::new(),
         };
     }
 

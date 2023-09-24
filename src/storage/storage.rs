@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use uuid::Uuid;
-
+use crate::ranid::RanID;
 use crate::storage::bucket::Buckets;
 
 pub struct Storage {
@@ -12,7 +11,7 @@ pub struct Storage {
 impl Storage {
     pub fn new() -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: RanID::new(),
             buckets: HashMap::new(),
         }
     }

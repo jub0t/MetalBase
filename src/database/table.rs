@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::database::row::Row;
 use crate::database::types::FieldValue;
+use crate::ranid::RanID;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TableConfig {
@@ -33,7 +34,7 @@ pub struct Table {
 impl Table {
     pub fn new(name: &str, config: TableConfig) -> Self {
         return Self {
-            id: Uuid::new_v4().to_string(),
+            id: RanID::new(),
             name: name.to_string(),
             schema: HashMap::new(),
             rows: HashMap::new(),
