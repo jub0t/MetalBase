@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
 use uuid::Uuid;
 
@@ -19,7 +19,7 @@ pub struct SchemaField {
 }
 
 pub type Schema = HashMap<String, SchemaField>;
-pub type Rows = BTreeMap<String, Row>;
+pub type Rows = HashMap<String, Row>;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Table {
@@ -36,7 +36,7 @@ impl Table {
             id: Uuid::new_v4().to_string(),
             name: name.to_string(),
             schema: HashMap::new(),
-            rows: BTreeMap::new(),
+            rows: HashMap::new(),
             config,
         };
     }
