@@ -4,7 +4,6 @@ use axum::Extension;
 use axum::http::StatusCode;
 
 use crate::database::Database;
-use crate::database::types::FieldValue;
 use crate::response::{Buffer, Response};
 
 pub async fn table_hand(db: Extension<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
@@ -13,7 +12,7 @@ pub async fn table_hand(db: Extension<Arc<Mutex<Database>>>) -> (StatusCode, Buf
     return match db_lock {
         Ok(db) => {
             let mut all = db.get_all_rows("users");
-            let mut res = Response::new(true, FieldValue::Null, Some(all));
+            let mut res = Response::new(true, None, Some(all));
 
             (StatusCode::OK, res.as_buffer())
         }

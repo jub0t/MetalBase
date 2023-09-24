@@ -6,21 +6,23 @@ pub enum FieldValue {
     String(String),
     Boolean(bool),
 
-    // Floats(Decimals)
-    Float32(f32),
-    Float64(f64),
-
     // Signed Integers
+    Int8(i8),
     Int16(i16),
     Int32(i32),
     Int64(i64),
     Int128(i64),
 
     // Unsigned Integer
+    UInt8(u8),
     UInt16(u16),
     UInt32(u32),
     UInt64(u64),
     UInt128(u128),
+
+    // Floats(Decimals)
+    Float32(f32),
+    Float64(f64),
 
     // Specials
     Vector(Box<FieldValue>),

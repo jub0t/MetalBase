@@ -94,8 +94,8 @@ impl Table {
         return data;
     }
 
-    pub fn get_all(&self) -> Rows {
-        return self.rows.clone();
+    pub fn get_all(&self) -> Vec<Row> {
+        return self.rows.clone().into_values().collect::<Vec<Row>>();
     }
 
     pub fn insert(&mut self, row: Row) -> String {

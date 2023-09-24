@@ -12,7 +12,7 @@ pub struct Response<T>
         T: Serialize + Clone,
 {
     pub success: bool,
-    pub message: FieldValue,
+    pub message: Option<FieldValue>,
     pub data: Option<T>,
 }
 
@@ -20,7 +20,7 @@ impl<T> Response<T>
     where
         T: Serialize + Clone,
 {
-    pub fn new(success: bool, message: FieldValue, data: Option<T>) -> Self {
+    pub fn new(success: bool, message: Option<FieldValue>, data: Option<T>) -> Self {
         Response {
             success,
             message,
@@ -33,7 +33,7 @@ impl<T> Response<T>
     }
 
     pub fn message(&mut self, message: &str) {
-        self.message = FieldValue::String(message.to_string());
+        self.message = Some(FieldValue::String(message.to_string()));
     }
 
     pub fn set_data(&mut self, data: T) {
