@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, HashMap};
 
-use serde_json::Value;
 use uuid::Uuid;
 
 use crate::database::row::Row;
+use crate::database::types::FieldValue;
 
 #[derive(Clone, Debug)]
 pub struct TableConfig {
@@ -11,13 +11,23 @@ pub struct TableConfig {
     schemaless: bool,
 }
 
+#[derive(Debug, Clone)]
+pub struct SchemaField {
+    id: String,
+    name: String,
+    type_: FieldValue,
+}
+
+pub type Schema = HashMap<String, SchemaField>;
+pub type Rows = BTreeMap<usize, Row>;
+
 #[derive(Clone, Debug)]
 pub struct Table {
     id: String,
     name: String,
     config: TableConfig,
-    schema: HashMap<String, Value>,
-    rows: BTreeMap<usize, Row>,
+    schema: Schema,
+    rows: Rows,
 }
 
 impl Table {
@@ -38,39 +48,48 @@ impl Table {
         };
     }
 
-    pub fn get_all_where(self, key: &str, value: &str) -> Vec<Row> {
+    pub fn get_all_where(self, field_name: &str, value: FieldValue) -> Vec<Row> {
         let mut data = Vec::new();
+
+        let field = self.schema.get(field_name).unwrap();
+
+        if value.match_with(&field.type_) {
+            return data;
+        }
+
         let mut rows = self.rows.clone();
 
         if rows.len() == 0 {
             return data;
         }
 
-        for (size, row) in rows.iter() {
-            if row.data[key] == value {
-                data.push(row.to_owned());
+        match field.type_ {
+            FieldValue::String(_) => {
+                let target = value.to_string();
+                for (_, row) in rows.iter() {
+                    let f = row.data.get(field_name).unwrap().to_string();
+                    if f == target {
+                        data.push(row.clone());
+                    }
+                }
             }
+
+            _ => {}
         }
+
 
         return data;
     }
 
-    pub fn get_all_where_multi(self, keys: Vec<&str>, values: Vec<&str>) -> Vec<Row> {
+    pub fn get_all_where_multi(self, keys: Vec<SchemaField>, values: Vec<FieldValue>) -> Vec<Row> {
         let mut data = Vec::new();
-        let mut rows = self.rows.clone();
+        let mut rows: Rows = self.rows.clone();
 
         if rows.len() == 0 {
             return data;
         }
 
-        for (size, row) in rows.iter() {
-            for (key, value) in keys.iter().zip(values.iter()) {
-                if row.data[key] == value {
-                    data.push(row.to_owned());
-                    break;
-                }
-            }
-        }
+        for (index, row) in rows.iter() {}
 
         return data;
     }

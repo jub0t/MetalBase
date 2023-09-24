@@ -1,7 +1,10 @@
 use axum::Json;
 use rmp_serde::Serializer;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+
+use crate::database::types::FieldValue;
+
+pub type Buffer = Vec<u8>;
 
 #[derive(Default, Debug, PartialEq, Deserialize, Serialize, Clone)]
 pub struct Response<T>
@@ -9,7 +12,7 @@ pub struct Response<T>
         T: Serialize + Clone,
 {
     pub success: bool,
-    pub message: Value,
+    pub message: FieldValue,
     pub data: Option<T>,
 }
 
@@ -17,7 +20,7 @@ impl<T> Response<T>
     where
         T: Serialize + Clone,
 {
-    pub fn new(success: bool, message: Value, data: Option<T>) -> Self {
+    pub fn new(success: bool, message: FieldValue, data: Option<T>) -> Self {
         Response {
             success,
             message,
@@ -30,7 +33,7 @@ impl<T> Response<T>
     }
 
     pub fn message(&mut self, message: &str) {
-        self.message = Value::String(message.to_string());
+        self.message = FieldValue::String(message.to_string());
     }
 
     pub fn set_data(&mut self, data: T) {

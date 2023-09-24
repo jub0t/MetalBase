@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use serde_json::Value;
+use crate::database::types::FieldValue;
 
-pub type RowData = HashMap<String, Value>;
+pub type RowData = HashMap<String, FieldValue>;
 
 #[derive(Clone, Debug)]
 pub struct Row {
