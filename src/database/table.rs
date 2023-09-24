@@ -5,13 +5,13 @@ use uuid::Uuid;
 use crate::database::row::Row;
 use crate::database::types::FieldValue;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TableConfig {
     custom_ids: bool,
     schemaless: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SchemaField {
     id: String,
     name: String,
@@ -19,9 +19,9 @@ pub struct SchemaField {
 }
 
 pub type Schema = HashMap<String, SchemaField>;
-pub type Rows = BTreeMap<usize, Row>;
+pub type Rows = BTreeMap<String, Row>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Table {
     id: String,
     name: String,
@@ -92,5 +92,16 @@ impl Table {
         for (index, row) in rows.iter() {}
 
         return data;
+    }
+
+    pub fn get_all(&self) -> Rows {
+        return self.rows.clone();
+    }
+
+    pub fn insert(&mut self, row: Row) -> String {
+        let rid = Uuid::new_v4().to_string();
+        self.rows.insert(rid.clone(), row);
+
+        return rid;
     }
 }

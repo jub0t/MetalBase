@@ -1,3 +1,5 @@
+use crate::database::image::ImagePointer;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub enum FieldValue {
     // Basics
@@ -21,8 +23,8 @@ pub enum FieldValue {
     UInt128(u128),
 
     // Specials
-    ImagePointer,
     Vector(Box<FieldValue>),
+    Image(ImagePointer),
 
     // Defaults
     #[default]

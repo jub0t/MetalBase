@@ -4,7 +4,7 @@ use crate::database::types::FieldValue;
 
 pub type RowData = HashMap<String, FieldValue>;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Row {
     pub data: RowData,
 }
