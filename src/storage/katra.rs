@@ -1,3 +1,7 @@
+use uuid::Uuid;
+
+use crate::response::Buffer;
+
 pub enum FileType {
     // Images/Graphics
     GIF,
@@ -19,8 +23,21 @@ pub enum FileType {
 pub struct Katra {
     id: String,
     name: String,
-    drop_type: FileType,
     size: usize,
+    drop_type: FileType,
+    data: Buffer,
 }
 
-impl Katra {}
+impl Katra {
+    pub fn new(name: &str) -> Self {
+        Self {
+            id: Uuid::new_v4().to_string(),
+            name: name.to_string(),
+            size: 0,
+            drop_type: FileType::CUSTOM("".to_string()),
+            data: Buffer::new(),
+        }
+    }
+
+    pub fn load_from_path(&mut self, path: &str) {}
+}
