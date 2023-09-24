@@ -39,6 +39,7 @@ async fn main() {
         .route("/table/:table/all", get(table_hand))
         .layer(Extension(Arc::clone(&mut db)));
 
+    println!("Server Started");
     Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await.unwrap();
