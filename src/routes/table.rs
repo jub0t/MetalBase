@@ -4,20 +4,22 @@ use axum::Extension;
 use axum::http::StatusCode;
 
 use crate::database::Database;
-use crate::database::row::Row;
 use crate::database::types::FieldValue;
 use crate::response::{Buffer, Response};
 
 pub async fn table_hand(db: Extension<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
-    let db = db.lock().unwrap();
-    let mut users = db.get_table("users").unwrap();
-    let mut user = Row::new();
-    &user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
+    let db_lock = db.lock();
 
-    users.insert(user.clone());
+    return match db_lock {
+        Ok(db) => {
+            let mut all = db.get_all_rows("users");
+            let mut res = Response::new(true, FieldValue::Null, Some(all));
 
-    let all = users.get_all();
-    let mut res = Response::new(true, FieldValue::Null, Some(all));
-
-    return (StatusCode::OK, res.as_buffer());
+            (StatusCode::OK, res.as_buffer())
+        }
+        Err(poison_err) => {
+            eprintln!("Mutex is poisoned: {:#?}", poison_err.to_string());
+            (StatusCode::INTERNAL_SERVER_ERROR, vec![])
+        }
+    };
 }

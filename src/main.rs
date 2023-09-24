@@ -12,6 +12,8 @@ use axum::routing::get;
 
 use routes::table::table_hand;
 
+use crate::database::row::Row;
+use crate::database::types::FieldValue;
 use crate::logger::Logger;
 
 mod toml;
@@ -26,13 +28,16 @@ mod logger;
 #[tokio::main]
 async fn main() {
     let mut dbc = database::Database::new("master");
-    dbc.create_table("users").unwrap();
+
+    let mut user = Row::new();
+    user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
+    dbc.insert("users", user);
 
     let logger = Logger::new();
     let mut db = Arc::new(Mutex::new(dbc));
 
     let app = axum::Router::new()
-        .route("/database/:database/:table", get(table_hand))
+        .route("/table/:table/all", get(table_hand))
         .layer(Extension(Arc::clone(&mut db)));
 
     Server::bind(&"0.0.0.0:3000".parse().unwrap())

@@ -4,7 +4,7 @@ use std::ops::DerefMut;
 use uuid::Uuid;
 
 use crate::database::row::Row;
-use crate::database::table::Table;
+use crate::database::table::{Rows, Table};
 use crate::database::types::FieldValue;
 
 pub mod table;
@@ -46,5 +46,19 @@ impl Database {
         }
 
         Vec::new()
+    }
+
+    pub fn get_all_rows(&self, table: &str) -> Rows {
+        if let Some(table) = self.tables.get(table) {
+            return table.clone().get_all();
+        }
+
+        return Rows::default();
+    }
+
+    pub fn insert(&mut self, table: &str, row: Row) {
+        if let Some(table) = self.tables.get_mut(table) {
+            table.insert(row);
+        }
     }
 }
