@@ -13,9 +13,11 @@ pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer)
         Ok(db) => {
             let start = std::time::Instant::now();
             let mut users = db.get_table("users").unwrap().get_rows_data();
+            let elapsed = start.elapsed().as_secs_f32();
+            
             let mut res = Response::new(true, None, Some(users));
+            res.set_time(elapsed);
 
-            res.set_time(start.elapsed().as_secs_f32());
             (StatusCode::OK, res.as_buffer())
         }
         Err(poison_err) => {
