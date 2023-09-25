@@ -32,6 +32,8 @@ async fn main() {
 
     let mut user = Row::new();
     user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
+    user.data.insert("password".to_string(), FieldValue::String("Bob69".to_string()));
+    
     dbc.insert("users", user);
 
     let mut db = Arc::new(Mutex::new(dbc));

@@ -1,3 +1,5 @@
+use serde_json::Value;
+
 use crate::database::image::ImagePointer;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
@@ -49,6 +51,18 @@ impl FieldValue {
         match (self, other) {
             (FieldValue::String(s1), FieldValue::String(s2)) => s1 == s2,
             _ => false
+        }
+    }
+
+
+    pub fn serde_value(&self) -> Value {
+        match self {
+            FieldValue::String(s) => Value::String(s.clone()),
+            FieldValue::Boolean(b) => Value::Bool(b.clone()),
+            FieldValue::Int8(i) => Value::Number(i.to_string().parse().unwrap()),
+            FieldValue::Int16(i) => Value::Number(i.to_string().parse().unwrap()),
+
+            _ => Value::Null
         }
     }
 }
