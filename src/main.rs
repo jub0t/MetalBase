@@ -7,8 +7,8 @@ extern crate serde_derive;
 
 use std::sync::{Arc, Mutex};
 
-use axum::{Extension, Server};
 use axum::routing::get;
+use axum::Server;
 
 use routes::table::table_hand;
 
@@ -21,23 +21,24 @@ pub mod database;
 pub mod storage;
 pub mod routes;
 pub mod logger;
-pub mod ranid;
+pub mod rid;
 
 
 #[tokio::main]
 async fn main() {
+    let logger = Logger::new();
     let mut dbc = database::Database::new("master");
+    dbc.create_table("users");
 
     let mut user = Row::new();
     user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
     dbc.insert("users", user);
 
-    let logger = Logger::new();
     let mut db = Arc::new(Mutex::new(dbc));
 
     let app = axum::Router::new()
         .route("/table/:table/all", get(table_hand))
-        .layer(Extension(Arc::clone(&mut db)));
+        .with_state(db);
 
     println!("Server Started");
     Server::bind(&"0.0.0.0:3000".parse().unwrap())

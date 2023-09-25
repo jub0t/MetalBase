@@ -1,19 +1,21 @@
 use std::sync::{Arc, Mutex};
 
-use axum::Extension;
+use axum::extract::State;
 use axum::http::StatusCode;
 
 use crate::database::Database;
 use crate::response::{Buffer, Response};
 
-pub async fn table_hand(db: Extension<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
+pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
     let db_lock = db.lock();
 
     return match db_lock {
         Ok(db) => {
-            let mut all = db.get_all_rows("users");
-            let mut res = Response::new(true, None, Some(all));
+            let start = std::time::Instant::now();
+            let mut users = db.get_table("users").unwrap().get_rows_data();
+            let mut res = Response::new(true, None, Some(users));
 
+            res.set_time(start.elapsed().as_secs_f32());
             (StatusCode::OK, res.as_buffer())
         }
         Err(poison_err) => {

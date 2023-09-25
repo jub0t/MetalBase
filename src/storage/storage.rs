@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ranid::RanID;
+use crate::rid::RanID;
 use crate::storage::bucket::Buckets;
 
 pub struct Storage {

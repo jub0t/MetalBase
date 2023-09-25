@@ -1,4 +1,4 @@
-use crate::ranid::RanID;
+use crate::rid::RanID;
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct ImagePointer {

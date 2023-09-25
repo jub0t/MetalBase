@@ -2,14 +2,15 @@ use std::collections::HashMap;
 use std::ops::DerefMut;
 
 use crate::database::row::Row;
-use crate::database::table::Table;
+use crate::database::table::{Rows, Table};
 use crate::database::types::FieldValue;
-use crate::ranid::RanID;
+use crate::rid::RanID;
 
 pub mod table;
 pub mod types;
 pub mod row;
-mod image;
+pub mod image;
+pub mod errors;
 
 pub type Tables = HashMap<String, Table>;
 
@@ -47,12 +48,12 @@ impl Database {
         Vec::new()
     }
 
-    pub fn get_all_rows(&self, table: &str) -> Vec<Row> {
+    pub fn get_all_rows(&self, table: &str) -> Rows {
         if let Some(table) = self.tables.get(table) {
             return table.clone().get_all();
         }
 
-        return vec![];
+        return Rows::default();
     }
 
     pub fn insert(&mut self, table: &str, row: Row) {

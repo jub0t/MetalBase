@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ranid::RanID;
+use crate::rid::RanID;
 use crate::storage::katra::{FileType, Katra};
 
 pub type Buckets = HashMap<String, Bucket>;

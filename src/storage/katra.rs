@@ -1,5 +1,7 @@
-use crate::ranid::RanID;
+use std::fs;
+
 use crate::response::Buffer;
+use crate::rid::RanID;
 
 pub enum FileType {
     // Images/Graphics
@@ -38,7 +40,18 @@ impl Katra {
         }
     }
 
-    pub fn load_from_path(&mut self, path: &str) {}
+    pub fn load_from_path(&mut self, path: &str) -> bool {
+        return match fs::read(path) {
+            Ok(data) => {
+                self.data = data;
+                true
+            }
+
+            Err(error) => {
+                false
+            }
+        };
+    }
 
     pub fn get_buffer(&self) -> &Buffer {
         &self.data

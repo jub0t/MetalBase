@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use uuid::Uuid;
 
-use crate::database::row::Row;
+use crate::database::row::{Row, RowData};
 use crate::database::types::FieldValue;
-use crate::ranid::RanID;
+use crate::rid::RanID;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TableConfig {
@@ -82,7 +82,7 @@ impl Table {
         return data;
     }
 
-    pub fn get_all_where_multi(self, keys: Vec<SchemaField>, values: Vec<FieldValue>) -> Vec<Row> {
+    pub fn get_all_where_multi(self, values: Vec<FieldValue>) -> Vec<Row> {
         let mut data = Vec::new();
         let mut rows: Rows = self.rows.clone();
 
@@ -95,14 +95,23 @@ impl Table {
         return data;
     }
 
-    pub fn get_all(&self) -> Vec<Row> {
-        return self.rows.clone().into_values().collect::<Vec<Row>>();
+    pub fn get_all(&self) -> Rows {
+        return self.rows.clone();
+    }
+
+    pub fn get_all_vec(&self) -> Vec<Row> {
+        return self.get_all().into_values().collect::<Vec<Row>>();
+    }
+
+    pub fn get_rows_data(&self) -> Vec<RowData> {
+        return self.get_all().iter()
+            .map(|(key, row)| row.data.clone())
+            .collect::<Vec<RowData>>();
     }
 
     pub fn insert(&mut self, row: Row) -> String {
         let rid = Uuid::new_v4().to_string();
         self.rows.insert(rid.clone(), row);
-
         return rid;
     }
 }
