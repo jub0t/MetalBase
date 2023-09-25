@@ -5,6 +5,7 @@ use axum::http::StatusCode;
 
 use crate::database::Database;
 use crate::response::{Buffer, Response};
+use crate::time::Time;
 
 pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
     let db_lock = db.lock();
@@ -13,10 +14,10 @@ pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer)
         Ok(db) => {
             let start = std::time::Instant::now();
             let mut users = db.get_table("users").unwrap().get_rows_data();
-            let elapsed = start.elapsed().as_secs_f32();
-            
+            let time = Time::new();
+
             let mut res = Response::new(true, None, Some(users));
-            res.set_time(elapsed);
+            res.set_time(time.elapsed_fmt());
 
             (StatusCode::OK, res.as_buffer())
         }

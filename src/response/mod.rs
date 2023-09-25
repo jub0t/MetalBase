@@ -13,7 +13,7 @@ pub type Buffer = Vec<u8>;
 pub enum ResponseTypes<T> {
     Success(bool),
     Message(Option<FieldValue>),
-    Time(f32),
+    Time(usize),
     Data(T),
 }
 
@@ -25,7 +25,7 @@ pub struct Response<T>
     pub success: bool,
     pub message: Option<FieldValue>,
     pub data: Option<T>,
-    pub time: Option<f32>,
+    pub time: Option<String>,
 }
 
 impl<T> Response<T>
@@ -34,7 +34,7 @@ impl<T> Response<T>
 {
     pub fn new(success: bool, message: Option<FieldValue>, data: Option<T>) -> Self {
         Response {
-            time: Some(0.0),
+            time: None,
             success,
             message,
             data,
@@ -49,9 +49,10 @@ impl<T> Response<T>
         self.message = Some(FieldValue::String(message.to_string()));
     }
 
-    pub fn set_time(&mut self, time: f32) {
+    pub fn set_time(&mut self, time: String) {
         self.time = Some(time);
     }
+
     pub fn set_data(&mut self, data: T) {
         self.data = Some(data);
     }
@@ -75,7 +76,7 @@ impl<T> Response<T>
             map.insert("message".to_string(), serde_json::to_value(Value::Null).unwrap());
         }
 
-        if let Some(time) = self.time {
+        if let Some(time) = self.time.clone() {
             map.insert("time".to_string(), serde_json::to_value(self.time.clone()).unwrap());
         }
 
