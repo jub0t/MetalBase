@@ -15,6 +15,7 @@ use routes::table::table_hand;
 use crate::database::row::Row;
 use crate::database::types::FieldValue;
 use crate::logger::Logger;
+use crate::storage::StorageMan;
 
 pub mod response;
 pub mod database;
@@ -22,20 +23,22 @@ pub mod storage;
 pub mod routes;
 pub mod logger;
 pub mod rid;
-mod time;
+pub mod time;
 
 
 #[tokio::main]
 async fn main() {
     let logger = Logger::new();
+    let sman = StorageMan::new();
     let mut dbc = database::Database::new("master");
     dbc.create_table("users");
 
-    let mut user = Row::new();
-    user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
-    user.data.insert("password".to_string(), FieldValue::String("Bob69".to_string()));
-
-    dbc.insert("users", user);
+    for x in 0..100000 {
+        let mut user = Row::new();
+        user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
+        user.data.insert("password".to_string(), FieldValue::String("Bob69".to_string()));
+        dbc.insert("users", user);
+    }
 
     let mut db = Arc::new(Mutex::new(dbc));
 

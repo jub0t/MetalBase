@@ -24,8 +24,8 @@ pub struct Response<T>
 {
     pub success: bool,
     pub message: Option<FieldValue>,
-    pub data: Option<T>,
     pub time: Option<String>,
+    pub data: Option<T>,
 }
 
 impl<T> Response<T>
@@ -80,8 +80,8 @@ impl<T> Response<T>
             map.insert("time".to_string(), serde_json::to_value(self.time.clone()).unwrap());
         }
 
-        if let Some(data) = self.clone().data {
-            map.insert("data".to_string(), serde_json::to_value(self.data.clone()).unwrap());
+        if let Some(data) = &self.data {
+            map.insert("data".to_string(), serde_json::to_value(data.clone()).unwrap());
         }
 
         return map;

@@ -54,15 +54,21 @@ impl FieldValue {
         }
     }
 
-
-    pub fn serde_value(&self) -> Value {
+    pub fn flatten(&self) -> Value {
         match self {
             FieldValue::String(s) => Value::String(s.clone()),
             FieldValue::Boolean(b) => Value::Bool(b.clone()),
             FieldValue::Int8(i) => Value::Number(i.to_string().parse().unwrap()),
             FieldValue::Int16(i) => Value::Number(i.to_string().parse().unwrap()),
 
-            _ => Value::Null
+            (other) => {
+                match other {
+                    FieldValue::Null => Value::Null,
+                    _ => {
+                        Value::Number(other.to_string().parse().unwrap())
+                    }
+                }
+            }
         }
     }
 }
