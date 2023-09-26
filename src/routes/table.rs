@@ -14,12 +14,11 @@ pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer)
     return match db_lock {
         Ok(db) => {
             let start = std::time::Instant::now();
-            let field: FieldValue = FieldValue::String("James".to_string());
+            let time = Time::new();
             let mut users = db.get_table("users")
                 .unwrap()
-                .search("username", &field);
+                .search("username", &FieldValue::String("James".to_string()));
 
-            let time = Time::new();
 
             let mut res = Response::new(true, None, Some(users));
             res.set_time(time.elapsed_fmt());

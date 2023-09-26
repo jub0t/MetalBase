@@ -30,6 +30,7 @@ pub struct Table {
     config: TableConfig,
     schema: Schema,
     rows: Rows,
+    search_limit: usize,
 }
 
 impl Table {
@@ -39,6 +40,7 @@ impl Table {
             name: name.to_string(),
             schema: HashMap::new(),
             rows: HashMap::new(),
+            search_limit: 10000,
             config,
         }
     }
@@ -50,17 +52,24 @@ impl Table {
         }
     }
 
-    pub fn search(&self, field_name: &str, value: &FieldValue) -> Vec<Row> {
-        let target = value.to_string();
-        self.rows.values()
-            .filter(|row| {
-                row.data
-                    .get(field_name)
-                    .map_or(false,
-                            |f| f.to_string() == target)
-            })
-            .cloned()
-            .collect()
+    pub fn search(&self, field_name: &str, value: &FieldValue) -> Rows {
+        let mut rows = Rows::new();
+        let mut i = 0;
+
+        for (id, row) in &self.rows {
+            if i >= self.search_limit {
+                break;
+            }
+
+            let field = row.get_raw(field_name);
+            if field.match_with(&value) {
+                rows.insert(id.to_owned(), row.clone()); // Clone here instead of to_owned()
+            }
+
+            i += 1;
+        }
+
+        rows
     }
 
     pub fn get_all_where_multi(&self, values: &[FieldValue]) -> Vec<Row> {

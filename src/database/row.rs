@@ -10,7 +10,7 @@ pub type ValueData = HashMap<String, Value>;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Row {
     pub data: RowData,
-    
+
     #[serde(skip_serializing)]
     pub flat_data: Value,
 }
@@ -25,6 +25,10 @@ impl Row {
 
     pub fn get(&self, field_name: &str) -> Option<&FieldValue> {
         return self.data.get(field_name);
+    }
+
+    pub fn get_raw(&self, field_name: &str) -> &FieldValue {
+        return self.data.get(field_name).unwrap();
     }
 
     pub fn get_mut(&mut self, field_name: &str) -> Option<&mut FieldValue> {

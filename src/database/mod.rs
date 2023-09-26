@@ -40,12 +40,12 @@ impl Database {
         return self.tables.get(name);
     }
 
-    pub fn get(&self, table: &str, field: &str, value: FieldValue) -> Vec<Row> {
+    pub fn get(&self, table: &str, field: &str, value: FieldValue) -> Rows {
         if let Some(table) = self.tables.get(table) {
-            return table.clone().search(field, &value);
+            return table.to_owned().search(field, &value);
         }
 
-        Vec::new()
+        Rows::default()
     }
 
     pub fn get_all_rows(&self, table: &str) -> Rows {
