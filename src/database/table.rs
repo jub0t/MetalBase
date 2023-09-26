@@ -1,8 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
-use uuid::Uuid;
-
-use crate::database::row::Row;
+use crate::database::row::{Row, Rows};
+use crate::database::schema::Schema;
 use crate::database::types::FieldValue;
 use crate::rid::RanID;
 
@@ -10,27 +9,18 @@ use crate::rid::RanID;
 pub struct TableConfig {
     custom_ids: bool,
     schemaless: bool,
+    search_limit: usize,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SchemaField {
-    id: String,
-    name: String,
-    type_: FieldValue,
-}
-
-pub type Schema = HashMap<String, SchemaField>;
-pub type Rows = HashMap<String, Row>;
-
+pub type Tables = HashMap<String, Table>;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Table {
-    id: String,
-    name: String,
+    pub id: String,
+    pub name: String,
     config: TableConfig,
     schema: Schema,
-    rows: Rows,
-    search_limit: usize,
+    pub rows: Rows,
 }
 
 impl Table {
@@ -38,15 +28,15 @@ impl Table {
         Self {
             id: RanID::new(),
             name: name.to_string(),
-            schema: HashMap::new(),
+            schema: BTreeMap::new(),
             rows: HashMap::new(),
-            search_limit: 10000,
             config,
         }
     }
 
     pub fn default_config() -> TableConfig {
         TableConfig {
+            search_limit: 100000,
             custom_ids: false,
             schemaless: false,
         }
@@ -57,13 +47,13 @@ impl Table {
         let mut i = 0;
 
         for (id, row) in &self.rows {
-            if i >= self.search_limit {
+            if i >= self.config.search_limit {
                 break;
             }
 
             let field = row.get_raw(field_name);
             if field.match_with(&value) {
-                rows.insert(id.to_owned(), row.clone()); // Clone here instead of to_owned()
+                rows.insert(id.to_owned(), row.clone());
             }
 
             i += 1;
@@ -125,8 +115,15 @@ impl Table {
     }
 
     pub fn insert(&mut self, row: Row) -> String {
-        let rid = Uuid::new_v4().to_string();
+        let rid = RanID::new();
         self.rows.insert(rid.clone(), row);
         rid
+    }
+
+    pub fn batch_insert(&mut self, rows: Vec<Row>) {
+        for row in rows {
+            let rid = RanID::new();
+            self.rows.insert(rid.clone(), row);
+        }
     }
 }

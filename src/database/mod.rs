@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::ops::DerefMut;
 
-use crate::database::row::Row;
-use crate::database::table::{Rows, Table};
+use crate::database::row::{Row, Rows};
+use crate::database::table::{Table, Tables};
 use crate::database::types::FieldValue;
 use crate::rid::RanID;
 
@@ -11,8 +11,8 @@ pub mod types;
 pub mod row;
 pub mod image;
 pub mod errors;
+pub mod schema;
 
-pub type Tables = HashMap<String, Table>;
 
 #[derive(Clone, Debug)]
 pub struct Database {
