@@ -42,7 +42,7 @@ impl Database {
 
     pub fn get(&self, table: &str, field: &str, value: FieldValue) -> Vec<Row> {
         if let Some(table) = self.tables.get(table) {
-            return table.clone().get_all_where(field, &value);
+            return table.clone().search(field, &value);
         }
 
         Vec::new()

@@ -50,19 +50,14 @@ impl Table {
         }
     }
 
-    pub fn get_all_where(&self, field_name: &str, value: &FieldValue) -> Vec<Row> {
-        if let Some(field) = self.schema.get(field_name) {
-            if value.match_with(&field.type_) {
-                return Vec::new();
-            }
-        } else {
-            return Vec::new();
-        }
-
+    pub fn search(&self, field_name: &str, value: &FieldValue) -> Vec<Row> {
         let target = value.to_string();
         self.rows.values()
             .filter(|row| {
-                row.data.get(field_name).map_or(false, |f| f.to_string() == target)
+                row.data
+                    .get(field_name)
+                    .map_or(false,
+                            |f| f.to_string() == target)
             })
             .cloned()
             .collect()

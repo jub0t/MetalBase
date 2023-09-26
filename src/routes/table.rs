@@ -17,8 +17,8 @@ pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer)
             let field: FieldValue = FieldValue::String("James".to_string());
             let mut users = db.get_table("users")
                 .unwrap()
-                .get_all_where("username", &field);
-            
+                .search("username", &field);
+
             let time = Time::new();
 
             let mut res = Response::new(true, None, Some(users));

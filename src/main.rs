@@ -37,7 +37,7 @@ async fn main() {
     user.data.insert("username".to_string(), FieldValue::String("James".to_string()));
     dbc.insert("users", user);
 
-    for x in 0..1000000 {
+    for x in 0..100000 {
         let mut user = Row::new();
         user.data.insert("username".to_string(), FieldValue::String("Bob".to_string()));
         dbc.insert("users", user);
