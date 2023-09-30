@@ -4,23 +4,19 @@ use axum::extract::State;
 use axum::http::StatusCode;
 
 use crate::database::Database;
-use crate::database::types::FieldValue;
-use crate::response::{Buffer, Response};
+use crate::response::{Bytes, Response};
 use crate::time::Time;
 
-pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Buffer) {
+pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Bytes) {
     let db_lock = db.lock();
 
     return match db_lock {
         Ok(db) => {
             let start = std::time::Instant::now();
             let time = Time::new();
-            let mut users = db.get_table("users")
-                .unwrap()
-                .search("username", &FieldValue::String("James".to_string()));
 
 
-            let mut res = Response::new(true, None, Some(users));
+            let mut res = Response::new(true, None, Some(time.elapsed_fmt()));
             res.set_time(time.elapsed_fmt());
 
             (StatusCode::OK, res.as_buffer())

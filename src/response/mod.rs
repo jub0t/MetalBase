@@ -3,16 +3,15 @@ use std::collections::HashMap;
 use axum::Json;
 use rmp_serde::Serializer;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
-use crate::database::types::FieldValue;
+use crate::database::types::Value;
 
-pub type Buffer = Vec<u8>;
+pub type Bytes = Vec<u8>;
 
 #[derive(Deserialize, Serialize)]
 pub enum ResponseTypes<T> {
     Success(bool),
-    Message(Option<FieldValue>),
+    Message(Option<Value>),
     Time(usize),
     Data(T),
 }
@@ -23,7 +22,7 @@ pub struct Response<T>
         T: Serialize + Clone,
 {
     pub success: bool,
-    pub message: Option<FieldValue>,
+    pub message: Option<Value>,
     pub time: Option<String>,
     pub data: Option<T>,
 }
@@ -32,9 +31,9 @@ impl<T> Response<T>
     where
         T: Serialize + Clone,
 {
-    pub fn new(success: bool, message: Option<FieldValue>, data: Option<T>) -> Self {
+    pub fn new(success: bool, message: Option<Value>, data: Option<T>) -> Self {
         Response {
-            time: None,
+            time: Some("".to_string()),
             success,
             message,
             data,
@@ -46,7 +45,7 @@ impl<T> Response<T>
     }
 
     pub fn message(&mut self, message: &str) {
-        self.message = Some(FieldValue::String(message.to_string()));
+        self.message = Some(Value::String(message.to_string()));
     }
 
     pub fn set_time(&mut self, time: String) {
@@ -73,7 +72,7 @@ impl<T> Response<T>
         if let Some(message) = &self.message {
             map.insert("message".to_string(), serde_json::to_value(self.message.clone()).unwrap());
         } else {
-            map.insert("message".to_string(), serde_json::to_value(Value::Null).unwrap());
+            map.insert("message".to_string(), serde_json::to_value(Value::None).unwrap());
         }
 
         if let Some(time) = self.time.clone() {
@@ -95,8 +94,8 @@ impl<T> Response<T>
     pub fn as_buffer(&self) -> Vec<u8> {
         let mut buffer = Vec::new();
         let resp = self.as_hashmap();
-
         let _ = resp.serialize(&mut Serializer::new(&mut buffer)).unwrap();
+
         return buffer;
     }
 }

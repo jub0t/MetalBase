@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::response::Buffer;
+use crate::response::Bytes;
 use crate::rid::RanID;
 
 pub enum FileType {
@@ -26,7 +26,7 @@ pub struct Katra {
     name: String,
     size: usize,
     drop_type: FileType,
-    data: Buffer,
+    data: Bytes,
 }
 
 impl Katra {
@@ -36,7 +36,7 @@ impl Katra {
             name: name.to_string(),
             size: 0,
             drop_type: FileType::CUSTOM("".to_string()),
-            data: Buffer::new(),
+            data: Bytes::new(),
         }
     }
 
@@ -53,12 +53,24 @@ impl Katra {
         };
     }
 
-    pub fn get_buffer(&self) -> &Buffer {
+
+    pub fn write_to_path(&self, path: &str) -> bool {
+        return match fs::write(path, &self.data) {
+            Ok(_) => {
+                true
+            }
+            Err(error) => {
+                false
+            }
+        };
+    }
+
+    pub fn get_buffer(&self) -> &Bytes {
         &self.data
     }
 
     // Function to update the data buffer
-    pub fn update_data(&mut self, data: Buffer) {
+    pub fn update_data(&mut self, data: Bytes) {
         self.data = data
     }
 }
