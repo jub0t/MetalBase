@@ -2,23 +2,25 @@ use std::sync::{Arc, Mutex};
 
 use axum::extract::State;
 use axum::http::StatusCode;
+use serde_json::Value::Null;
 
 use crate::database::Database;
-use crate::response::{Bytes, Response};
+use crate::database::types::Value;
+use crate::response::Response;
 use crate::time::Time;
 
-pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Bytes) {
+pub async fn table_hand(db: State<Arc<Mutex<Database>>>) -> (StatusCode, Vec<u8>) {
     let db_lock = db.lock();
 
     return match db_lock {
-        Ok(db) => {
+        Ok(mut db) => {
             let start = std::time::Instant::now();
             let time = Time::new();
+            // let rows = db.find_all("users", "name", Value::String("Bob".to_string()));
+            let mut res = Response::new(true, None, Some(Null));
 
-
-            let mut res = Response::new(true, None, Some(time.elapsed_fmt()));
+            res.message(Value::String("Database Error".to_string()));
             res.set_time(time.elapsed_fmt());
-
             (StatusCode::OK, res.as_buffer())
         }
         Err(poison_err) => {

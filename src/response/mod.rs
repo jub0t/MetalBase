@@ -44,8 +44,8 @@ impl<T> Response<T>
         self.success = success;
     }
 
-    pub fn message(&mut self, message: &str) {
-        self.message = Some(Value::String(message.to_string()));
+    pub fn message(&mut self, message: Value) {
+        self.message = Some(message);
     }
 
     pub fn set_time(&mut self, time: String) {

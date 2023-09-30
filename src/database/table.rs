@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
-use crate::database::row::Rows;
+use crate::database::errors::DatabaseError;
+use crate::database::row::{Row, Rows, RowShards};
 use crate::database::schema::Schema;
 use crate::rid::RanID;
 
@@ -9,6 +10,18 @@ pub struct TableConfig {
     custom_ids: bool,
     schemaless: bool,
     search_limit: usize,
+    shard_limit: usize,
+}
+
+impl Default for TableConfig {
+    fn default() -> Self {
+        Self {
+            custom_ids: false,
+            schemaless: false,
+            search_limit: 100000,
+            shard_limit: 50000,
+        }
+    }
 }
 
 pub type Tables = HashMap<String, Table>;
@@ -17,9 +30,15 @@ pub type Tables = HashMap<String, Table>;
 pub struct Table {
     pub id: String,
     pub name: String,
+    pub data: RowShards,
     config: TableConfig,
     schema: Schema,
-    pub rows: Rows,
+}
+
+impl Default for Table {
+    fn default() -> Self {
+        Self::new("", TableConfig::default())
+    }
 }
 
 impl Table {
@@ -28,7 +47,7 @@ impl Table {
             id: RanID::new(),
             name: name.to_string(),
             schema: BTreeMap::new(),
-            rows: Rows::new(),
+            data: RowShards::new(),
             config,
         }
     }
@@ -38,6 +57,20 @@ impl Table {
             search_limit: 100000,
             custom_ids: false,
             schemaless: false,
+            shard_limit: 50000,
         }
+    }
+
+    pub fn insert(&mut self, row: Row) -> Result<(), DatabaseError> {
+        match self.data.last_mut() {
+            Some(shard) => {
+                shard.push(row.clone());
+            }
+            None => {
+                self.data.push(Rows::new());
+            }
+        }
+
+        return Ok(());
     }
 }
