@@ -9,6 +9,7 @@ use std::sync::{Arc, Mutex};
 
 use axum::routing::get;
 use axum::Server;
+use rayon::prelude::*;
 
 use routes::table::table_hand;
 
@@ -37,7 +38,7 @@ async fn main() {
     dbc.create_table("users".to_string());
 
     let now = Time::new();
-    for x in 0..5000000 {
+    for x in 0..500_000 {
         let mut row = Row::new();
         row.insert("name".to_string(), Value::String("James".to_string()));
         dbc.insert("users", row).unwrap();

@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 use std::ops::DerefMut;
 
+use rayon::prelude::*;
+
 use crate::database::errors::DatabaseError::TableNotFound;
+use crate::database::row::Row;
 use crate::database::table::{Table, Tables};
 use crate::database::types::Value;
 use crate::rid::RanID;
@@ -46,20 +49,23 @@ impl Database {
         };
     }
 
-    pub fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<row::Rows, errors::DatabaseError> {
-        let mut table = self.tables.get(table_name).unwrap();
+    pub fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<Vec<Row>, errors::DatabaseError> {
+        let table = self.tables.get(table_name).unwrap();
         let shards = &table.data;
+        let mut results = vec![];
 
-        // Iterate over all shards parallel
-        let mut rows = Vec::new();
-        for shard in shards {
+        // Iterate over shards
+        for shard in &table.data {
+            // Search for Value in rows within each shard
             for row in shard {
-                if row.get(key) == Some(&value) {
-                    rows.push(row.clone());
+                if let Some(val) = row.get(key) {
+                    if *val == value {
+                        results.push(row.clone());
+                    }
                 }
             }
         }
 
-        return Ok(rows);
+        Ok(results)
     }
 }
