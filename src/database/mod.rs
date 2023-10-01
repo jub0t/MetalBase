@@ -4,10 +4,11 @@ use std::ops::DerefMut;
 use rayon::prelude::*;
 
 use crate::database::errors::DatabaseError::TableNotFound;
-use crate::database::row::Row;
+use crate::database::row::{Row, Rows};
 use crate::database::table::{Table, Tables};
 use crate::database::types::Value;
 use crate::rid::RanID;
+use crate::time::Time;
 
 pub mod table;
 pub mod types;
@@ -49,23 +50,55 @@ impl Database {
         };
     }
 
-    pub fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<Vec<Row>, errors::DatabaseError> {
-        let table = self.tables.get(table_name).unwrap();
-        let shards = &table.data;
-        let mut results = vec![];
+    pub async fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<Vec<Row>, errors::DatabaseError> {
+        let mut table = self.tables.get(table_name).unwrap();
+        let shards = &mut table.data.clone();
 
-        // Iterate over shards
-        for shard in &table.data {
-            // Search for Value in rows within each shard
-            for row in shard {
-                if let Some(val) = row.get(key) {
-                    if *val == value {
-                        results.push(row.clone());
+        // Scan All Shards Parallel
+        let result: Vec<_> = shards.par_iter()
+            .flat_map(|rows| {
+                let mut data = Rows::default();
+                for row in rows {
+                    if row.get(key).unwrap() == &value {
+                        data.push(row.clone());
                     }
+                }
+
+                data
+            })
+            .collect();
+
+
+        Ok(result.into())
+    }
+
+    pub async fn search_shard(&self, shard: &Rows, k: &str, v: &Value) -> Rows {
+        let mut rows = Rows::new();
+
+        for row in shard {
+            if let Some(val) = row.get(k) {
+                if val == v {
+                    rows.push(row.clone());
                 }
             }
         }
 
-        Ok(results)
+        return rows;
+    }
+
+    pub fn init_test(&mut self) {
+        self.create_table("users".to_string()).expect("TODO: panic message");
+
+        let now = Time::new();
+        for x in 0..500_000 {
+            let mut row = Row::new();
+            row.insert("name".to_string(), Value::String("James".to_string()));
+            self.insert("users", row).unwrap();
+        }
+
+        let mut row = Row::new();
+        row.insert("name".to_string(), Value::String("Bob".to_string()));
+        self.insert("users", row).unwrap();
+        println!("{}", now.elapsed_fmt());
     }
 }

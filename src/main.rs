@@ -11,12 +11,10 @@ use axum::routing::get;
 use axum::Server;
 use rayon::prelude::*;
 
-use routes::table::table_hand;
-
 use crate::database::Database;
-use crate::database::row::Row;
 use crate::database::types::Value;
 use crate::logger::Logger;
+use crate::routes::table::table_hand;
 use crate::storage::StorageMan;
 use crate::time::Time;
 
@@ -28,27 +26,22 @@ pub mod logger;
 pub mod rid;
 pub mod time;
 
-
-#[tokio::main(flavor = "current_thread")]
+#[tokio::main]
 async fn main() {
     let logger = Logger::new();
     let sman = StorageMan::new();
     let mut dbc = Database::new("master");
+    dbc.init_test();
 
-    dbc.create_table("users".to_string());
-
-    let now = Time::new();
-    for x in 0..500_000 {
-        let mut row = Row::new();
-        row.insert("name".to_string(), Value::String("James".to_string()));
-        dbc.insert("users", row).unwrap();
+    let start = Time::new();
+    match dbc.find_all("users", "name", Value::String("Bob".to_string())).await {
+        Ok(rows) => {
+            println!("Found In {}: {:#?}", start.elapsed_fmt(), rows);
+        }
+        Err(err) => {
+            println!("Error: {:#?}", err);
+        }
     }
-
-    println!("{}", now.elapsed_fmt());
-
-    let mut row = Row::new();
-    row.insert("name".to_string(), Value::String("Bob".to_string()));
-    dbc.insert("users", row).unwrap();
 
     let mut db = Arc::new(Mutex::new(dbc));
     let app = axum::Router::new()

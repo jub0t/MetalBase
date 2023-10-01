@@ -18,8 +18,8 @@ impl Default for TableConfig {
         Self {
             custom_ids: false,
             schemaless: false,
+            shard_limit: 100000,
             search_limit: 100000,
-            shard_limit: 50000,
         }
     }
 }
