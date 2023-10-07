@@ -50,29 +50,20 @@ impl Database {
         };
     }
 
-    pub async fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<Vec<Row>, errors::DatabaseError> {
+    pub async fn find_all(&self, table_name: &str, key: &str, value: Value) -> Result<Rows, errors::DatabaseError> {
         let mut table = self.tables.get(table_name).unwrap();
-        let shards = &mut table.data.clone();
+        let mut result = vec![];
 
-        // Scan All Shards Parallel
-        let result: Vec<_> = shards.par_iter()
-            .flat_map(|rows| {
-                let mut data = Rows::default();
-                for row in rows {
-                    if row.get(key).unwrap() == &value {
-                        data.push(row.clone());
-                    }
-                }
+        // Iterate over every shard at the same time using rayon's par_iter()
+        let res = table.data.par_iter().map(|shard| {
+            let rows = self.search_shard(shard, key, &value).iter().rev().collect::<Rows>();
+            rows
+        }).into_par_iter().rev().collect::<Rows>();
 
-                data
-            })
-            .collect();
-
-
-        Ok(result.into())
+        Ok(result)
     }
 
-    pub async fn search_shard(&self, shard: &Rows, k: &str, v: &Value) -> Rows {
+    pub fn search_shard(&self, shard: &Rows, k: &str, v: &Value) -> Rows {
         let mut rows = Rows::new();
 
         for row in shard {
@@ -83,7 +74,7 @@ impl Database {
             }
         }
 
-        return rows;
+        rows
     }
 
     pub fn init_test(&mut self) {

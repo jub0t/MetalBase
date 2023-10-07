@@ -7,6 +7,7 @@ extern crate serde_derive;
 
 use std::sync::{Arc, Mutex};
 
+use axum::extract::State;
 use axum::routing::get;
 use axum::Server;
 use rayon::prelude::*;
@@ -46,7 +47,7 @@ async fn main() {
     let mut db = Arc::new(Mutex::new(dbc));
     let app = axum::Router::new()
         .route("/table/:table/all", get(table_hand))
-        .with_state(db);
+        .with_state(State(db));
 
     println!("Server Listening at http://127.0.0.1:3000");
     Server::bind(&"0.0.0.0:3000".parse().unwrap())
